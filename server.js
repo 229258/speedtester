@@ -1,8 +1,12 @@
 const prompt = require('prompt');
+const { worker } = require('worker_threads');
 
 const port_regex = /^([1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
 
-var server_port;
+let tcp_worker;
+let udp_worker;
+
+let server_port;
 
 prompt.start();
 prompt.get({
@@ -27,8 +31,17 @@ prompt.get({
         }
 
         server_port = result.server_port;
-    }
 
+        start_tcp_worker();
+        start_udp_worker();
+    }
 );
 
+const start_tcp_worker = () => {
+    console.log('tcp worker');
+}
+
+const start_udp_worker = () => {
+    console.log('udp worker');
+}
 
