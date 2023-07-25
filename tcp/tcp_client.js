@@ -1,5 +1,5 @@
 const { workerData, ParentPort } = require('worker_threads');
-const { server_ip, server_port } = workerData;
+const { server_ip, server_port, nagle, data, data_size } = workerData;
 const net = require('net');
 
 const client = net.connect(
@@ -7,6 +7,8 @@ const client = net.connect(
 
     () => {
         console.log(`client connected`);
+        console.log(nagle);
+        console.log(`Will send: ${data} (${data_size})`);
     }
 
 );
