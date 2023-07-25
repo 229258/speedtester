@@ -66,7 +66,7 @@ prompt.get({
         }
 
         let is_nagle_enabled = ((result.is_nagle_enabled === 'n' || result.is_nagle_enabled === 'N')) ? false : true;
-        let generated_data = generate_data(result.data_size);
+        let generated_data = generate_data(result.data_size).toString();
 
         start_tcp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
         start_udp_worker();
