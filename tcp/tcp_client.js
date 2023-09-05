@@ -15,7 +15,7 @@ const client = net.connect(
 );
 
 const send_message = (client, message) => {
-    client.write(message)
+    client.write(message);
 };
 
 client.on('error', (error) => {

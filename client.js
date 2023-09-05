@@ -66,7 +66,7 @@ prompt.get({
         }
 
         let is_nagle_enabled = ((result.is_nagle_enabled === 'n' || result.is_nagle_enabled === 'N')) ? false : true;
-        let generated_data = generate_data(result.data_size).toString();
+        let generated_data = generate_data(result.data_size);
 
         start_tcp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
         start_udp_worker();
@@ -74,15 +74,9 @@ prompt.get({
 );
 
 const generate_data = (data_size) => {
-    let i = 1;
-    const data_array = [];
+    const data_array = Array.from({ length: data_size }, (_, index) => (index + 1) % 10).join('');
 
-    while (i <= data_size) {
-        data_array.push(i % 10);
-        i++;
-    }
-
-    console.log(data_array);
+    // console.log(data_array);
 
     return data_array;
 };
