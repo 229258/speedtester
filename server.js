@@ -1,8 +1,14 @@
 const prompt = require('prompt');
+const { Worker } = require('worker_threads');
+
+const speedtester_utils = require('./speedtester_utils');
 
 const port_regex = /^([1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
 
-var server_port;
+let tcp_worker;
+let udp_worker;
+
+let active_connections = 0;
 
 prompt.start();
 prompt.get({
@@ -26,9 +32,24 @@ prompt.get({
             return;
         }
 
-        server_port = result.server_port;
+        start_tcp_worker(Number(result.server_port));
+        start_udp_worker();
     }
-
 );
 
+const start_tcp_worker = (server_port) => {
+    console.log('tcp worker');
+    const autodetected_server_ip = speedtester_utils.get_ip_address();
+    tcp_worker = new Worker('./tcp/tcp_server', {
+        workerData: {
+            server_ip: autodetected_server_ip,
+            server_port
+        },
+    });
+    active_connections++;
+}
+
+const start_udp_worker = () => {
+    console.log('udp worker');
+}
 
