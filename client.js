@@ -69,7 +69,7 @@ prompt.get({
         let generated_data = generate_data(result.data_size);
 
         start_tcp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
-        start_udp_worker();
+        start_udp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
     }
 );
 
@@ -94,6 +94,14 @@ const start_tcp_worker = (server_port, data_size, nagle, data) => {
     });
 };
 
-const start_udp_worker = () => {
-    console.log('udp worker');
+const start_udp_worker = (server_port, data_size, nagle, data) => {
+    udp_worker = new Worker('./udp/udp_client', {
+        workerData: {
+            server_ip,
+            server_port,
+            nagle,
+            data,
+            data_size,
+        },
+    });
 };

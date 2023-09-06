@@ -10,6 +10,12 @@ server.on('listening', () => {
     console.log(`UDP server listening on ${address.address}:${address.port}`);
 });
 
+server.on('message', (msg, rinfo) => {
+    // console.log(`UDP Received data: ${msg}`);
+    console.log(`UDP worker received ${msg.byteLength} bytes`);
+    // console.log(`UDP worker received ${msg.byteLength} bytes in ${time_stop - time_start} miliseconds with speed ${transfer} kB/s.`);
+});
+
 server.on('error', (e) => {
     console.log(`Server error: ${e}`);
     process.exit();
