@@ -74,7 +74,7 @@ const server = net.createServer((socket) => {
 });
 
 server.listen({ port: server_port }, () => {
-    console.log(`Server listening on ${server_ip}:${server_port}`);
+    console.log(`TCP server listening on ${server_ip}:${server_port}`);
 });
 
 server.on('error', (e) => {
