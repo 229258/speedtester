@@ -1,4 +1,4 @@
-const { workerData, ParentPort } = require('worker_threads');
+const { workerData, ParentPort, parentPort } = require('worker_threads');
 const { server_ip, server_port } = workerData;
 const net = require('net');
 
@@ -38,15 +38,9 @@ const server = net.createServer((socket) => {
         }
          
         let transfer = (data.byteLength / this_time) * 1000 / 1024;
-        console.log(`TCP worker received ${data.byteLength}:${received_bytes} bytes in ${time_stop - time_start} miliseconds. `);
-        
-        
-        console.log(`part transfer ${transfer} kB/s`);
-
+        console.log(`TCP worker received ${data.byteLength} bytes in ${this_time} miliseconds with speed ${transfer.toFixed(2)} kB/s.`);
 
         time_start = Date.now();
-
-        // console.log(`Received data: ${received_data}`);
     });
 
     socket.on('end', () => {
@@ -65,16 +59,19 @@ const server = net.createServer((socket) => {
         console.log(`TCP client ${socket.remoteAddress}:${socket.remotePort} disconnected.`);
         active_connections--;
 
-        const all_time = new Date(all_time_stop - all_time_start);
-        console.log(`data: ${received_bytes}`);
-        console.log(`time: ${all_time}`);
+        const all_time = all_time_stop - all_time_start;
+        // const all_time = new Date(all_time_stop - all_time_start);
+        console.log(`TCP data: ${received_bytes} bytes`);
+        console.log(`TCP time: ${all_time / 1000} seconds`);
         let transfer = (received_bytes / all_time) * 1000 / 1024;
-        console.log(`transfer ${transfer} kB/s`);
+        console.log(`TCP transfer ${transfer.toFixed(2)} kB/s`);
+
+        parentPort.postMessage({'message': 'END'});
     });
 });
 
 server.listen({ port: server_port }, () => {
-    console.log(`Server listening on ${server_ip}:${server_port}`);
+    console.log(`TCP server listening on ${server_ip}:${server_port}`);
 });
 
 server.on('error', (e) => {

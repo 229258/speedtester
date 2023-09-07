@@ -69,7 +69,8 @@ prompt.get({
         let generated_data = generate_data(result.data_size);
 
         start_tcp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
-        start_udp_worker();
+        start_udp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
+        ask_user_for_stop_transmission();
     }
 );
 
@@ -92,8 +93,41 @@ const start_tcp_worker = (server_port, data_size, nagle, data) => {
             data_size,
         },
     });
+
+    tcp_worker.on('exit', () => {
+        console.log('TCP will end work');
+    });
 };
 
-const start_udp_worker = () => {
-    console.log('udp worker');
+const start_udp_worker = (server_port, data_size, nagle, data) => {
+    udp_worker = new Worker('./udp/udp_client', {
+        workerData: {
+            server_ip,
+            server_port,
+            nagle,
+            data,
+            data_size,
+        },
+    });
+
+    udp_worker.on('exit', () => {
+        console.log('UDP will end work');
+    });
+};
+
+ask_user_for_stop_transmission = () => {
+    prompt.get(
+        {
+            name: 'exit',
+            message: 'Press Enter key to stop transmission.'
+        },
+        (err, result) => {
+            if (err) {
+                return console.log(err);
+            }
+            tcp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
+            udp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
+            console.log('Transmission ending...');
+        }
+    );
 };

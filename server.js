@@ -33,7 +33,7 @@ prompt.get({
         }
 
         start_tcp_worker(Number(result.server_port));
-        start_udp_worker();
+        start_udp_worker(Number(result.server_port));
     }
 );
 
@@ -47,9 +47,25 @@ const start_tcp_worker = (server_port) => {
         },
     });
     active_connections++;
+
+    tcp_worker.on('message', () => {
+        if (udp_worker) {
+            udp_worker.postMessage('END');
+        } else {
+            console.log('UDP worker was not started.');
+        }
+    });
 }
 
-const start_udp_worker = () => {
+const start_udp_worker = (server_port) => {
     console.log('udp worker');
+    const autodetected_server_ip = speedtester_utils.get_ip_address();
+    udp_worker = new Worker('./udp/udp_server', {
+        workerData: {
+            server_ip: autodetected_server_ip,
+            server_port
+        },
+    });
+    active_connections++;
 }
 
