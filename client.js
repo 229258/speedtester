@@ -99,12 +99,11 @@ const start_tcp_worker = (server_port, data_size, nagle, data) => {
     });
 };
 
-const start_udp_worker = (server_port, data_size, nagle, data) => {
+const start_udp_worker = (server_port, data_size, data) => {
     udp_worker = new Worker('./udp/udp_client', {
         workerData: {
             server_ip,
             server_port,
-            nagle,
             data,
             data_size,
         },
@@ -125,8 +124,8 @@ ask_user_for_stop_transmission = () => {
             if (err) {
                 return console.log(err);
             }
-            tcp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
-            udp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
+            tcp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
+            udp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
             console.log('Transmission ending...');
         }
     );

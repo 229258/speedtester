@@ -7,6 +7,10 @@ const client = net.connect(
     { port: server_port, host: server_ip },
 
     () => {
+        if (nagle)
+            client.setNoDelay(false);
+        else
+            client.setNoDelay(true);
         console.log(`TCP client connected.`);
         send_message(client, `SIZE:${data_size}`);
         setInterval(send_message.bind(this, client, data), 0);

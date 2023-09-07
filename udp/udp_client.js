@@ -1,5 +1,5 @@
 const { workerData, ParentPort, parentPort } = require('worker_threads');
-const { server_ip, server_port, nagle, data, data_size } = workerData;
+const { server_ip, server_port, data, data_size } = workerData;
 const dgram = require('dgram');
 const { message } = require('prompt');
 

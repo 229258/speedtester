@@ -36,7 +36,7 @@ const server = net.createServer((socket) => {
         if (this_time == 0) {
             this_time = 1;
         }
-         
+
         let transfer = (data.byteLength / this_time) * 1000 / 1024;
         console.log(`TCP worker received ${data.byteLength} bytes in ${this_time} miliseconds with speed ${transfer.toFixed(2)} kB/s.`);
 
@@ -56,17 +56,16 @@ const server = net.createServer((socket) => {
     });
 
     socket.on('close', () => {
-        console.log(`TCP client ${socket.remoteAddress}:${socket.remotePort} disconnected.`);
         active_connections--;
-
+        console.log(`TCP client ${socket.remoteAddress}:${socket.remotePort} disconnected.`);
+        console.log('TCP statistics:')
         const all_time = all_time_stop - all_time_start;
-        // const all_time = new Date(all_time_stop - all_time_start);
         console.log(`TCP data: ${received_bytes} bytes`);
         console.log(`TCP time: ${all_time / 1000} seconds`);
         let transfer = (received_bytes / all_time) * 1000 / 1024;
         console.log(`TCP transfer ${transfer.toFixed(2)} kB/s`);
 
-        parentPort.postMessage({'message': 'END'});
+        parentPort.postMessage({ 'message': 'END' });
     });
 });
 

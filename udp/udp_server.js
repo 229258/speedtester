@@ -48,6 +48,7 @@ server.on('error', (e) => {
 });
 
 parentPort.on('message', () => {
+    console.log('UDP statistics:')
     all_time_stop = Date.now();
     const all_time = all_time_stop - all_time_start
     console.log(`UDP data: ${received_bytes}`);
