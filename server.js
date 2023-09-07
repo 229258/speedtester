@@ -47,6 +47,14 @@ const start_tcp_worker = (server_port) => {
         },
     });
     active_connections++;
+
+    tcp_worker.on('message', () => {
+        if (udp_worker) {
+            udp_worker.postMessage('END');
+        } else {
+            console.log('UDP worker was not started.');
+        }
+    });
 }
 
 const start_udp_worker = (server_port) => {

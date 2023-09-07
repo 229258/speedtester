@@ -1,4 +1,4 @@
-const { workerData, ParentPort } = require('worker_threads');
+const { workerData, ParentPort, parentPort } = require('worker_threads');
 const { server_ip, server_port } = workerData;
 const net = require('net');
 
@@ -59,11 +59,14 @@ const server = net.createServer((socket) => {
         console.log(`TCP client ${socket.remoteAddress}:${socket.remotePort} disconnected.`);
         active_connections--;
 
-        const all_time = new Date(all_time_stop - all_time_start);
-        console.log(`data: ${received_bytes}`);
-        console.log(`time: ${all_time}`);
+        const all_time = all_time_stop - all_time_start;
+        // const all_time = new Date(all_time_stop - all_time_start);
+        console.log(`TCP data: ${received_bytes} bytes`);
+        console.log(`TCP time: ${all_time / 1000} seconds`);
         let transfer = (received_bytes / all_time) * 1000 / 1024;
-        console.log(`transfer ${transfer} kB/s`);
+        console.log(`TCP transfer ${transfer.toFixed(2)} kB/s`);
+
+        parentPort.postMessage({'message': 'END'});
     });
 });
 

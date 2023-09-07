@@ -1,4 +1,4 @@
-const { workerData, ParentPort } = require('worker_threads');
+const { workerData, parentPort } = require('worker_threads');
 const { server_ip, server_port } = workerData;
 const dgram = require('dgram');
 
@@ -15,6 +15,11 @@ server.on('listening', () => {
 });
 
 server.on('message', (msg, rinfo) => {
+    if (msg === 'FINE') {
+        console.log('Closing UDP_worker.');
+        process.exit();
+    }
+
     const received_data = msg.toString();
     
     if (received_data.startsWith("SIZE:")) {
@@ -40,6 +45,15 @@ server.on('message', (msg, rinfo) => {
 server.on('error', (e) => {
     console.log(`Server error: ${e}`);
     process.exit();
+});
+
+parentPort.on('message', () => {
+    all_time_stop = Date.now();
+    const all_time = all_time_stop - all_time_start
+    console.log(`UDP data: ${received_bytes}`);
+    console.log(`UDP time: ${all_time}`);
+    const transfer = (received_bytes / all_time) * 1000 / 1024;
+    console.log(`UDP transfer ${transfer.toFixed(2)} kB/s`);
 });
 
 server.bind(server_port, server_ip);
