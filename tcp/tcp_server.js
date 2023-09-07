@@ -38,11 +38,9 @@ const server = net.createServer((socket) => {
         }
          
         let transfer = (data.byteLength / this_time) * 1000 / 1024;
-        console.log(`TCP worker received ${data.byteLength} bytes in ${time_stop - time_start} miliseconds with speed ${transfer} kB/s.`);
+        console.log(`TCP worker received ${data.byteLength} bytes in ${this_time} miliseconds with speed ${transfer.toFixed(2)} kB/s.`);
 
         time_start = Date.now();
-
-        // console.log(`Received data: ${received_data}`);
     });
 
     socket.on('end', () => {

@@ -11,6 +11,7 @@ const send_message = (client, message) => {
     client.send(`${message.toString()}`, server_port, server_ip);
 };
 
+send_message(client, `SIZE:${data_size}`);
 setInterval(send_message.bind(this, client, data), 0);
 
 client.on('message', (msg, rinfo) => {
