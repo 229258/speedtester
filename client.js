@@ -7,6 +7,8 @@ const port_regex = /^([1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\
 let tcp_worker;
 let udp_worker;
 
+let active_connections = 0;
+
 prompt.start();
 prompt.get({
     properties: {
@@ -69,16 +71,14 @@ prompt.get({
         let generated_data = generate_data(result.data_size);
 
         start_tcp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
-        start_udp_worker(Number(result.server_port), result.data_size, is_nagle_enabled, generated_data);
+        start_udp_worker(Number(result.server_port), result.data_size, generated_data);
         ask_user_for_stop_transmission();
     }
 );
 
 const generate_data = (data_size) => {
     const data_array = Array.from({ length: data_size }, (_, index) => (index + 1) % 10).join('');
-
     // console.log(data_array);
-
     return data_array;
 };
 
@@ -94,28 +94,43 @@ const start_tcp_worker = (server_port, data_size, nagle, data) => {
         },
     });
 
+    active_connections++;
+
     tcp_worker.on('exit', () => {
-        console.log('TCP will end work');
+        on_worker_exit('TCP');
+        udp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
+    });
+
+    tcp_worker.on('error', (message) => {
+        console.log(`TCP error ${message}`);
+        on_worker_exit('TCP');
+        udp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
     });
 };
 
-const start_udp_worker = (server_port, data_size, nagle, data) => {
+const start_udp_worker = (server_port, data_size, data) => {
     udp_worker = new Worker('./udp/udp_client', {
         workerData: {
             server_ip,
             server_port,
-            nagle,
             data,
             data_size,
         },
     });
 
+    active_connections++;
+
     udp_worker.on('exit', () => {
-        console.log('UDP will end work');
+        on_worker_exit('UDP');
+    });
+
+    udp_worker.on('error', (msg) => {
+        console.log(`UDP error ${prompt.message}`);
+        on_worker_exit('UDP');
     });
 };
 
-ask_user_for_stop_transmission = () => {
+const ask_user_for_stop_transmission = () => {
     prompt.get(
         {
             name: 'exit',
@@ -125,9 +140,19 @@ ask_user_for_stop_transmission = () => {
             if (err) {
                 return console.log(err);
             }
-            tcp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
-            udp_worker.postMessage({type: 'exit', data: {message: 'exit'}});
+            tcp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
+            udp_worker.postMessage({ type: 'exit', data: { message: 'exit' } });
             console.log('Transmission ending...');
         }
     );
+};
+
+const on_worker_exit = (worker) => {
+    console.log(`${worker} client finished.`);
+    active_connections--;
+
+    if (active_connections <= 0) {
+        console.log('No active workers from client side. Exiting.');
+        process.exit();
+    }
 };
