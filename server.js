@@ -38,7 +38,7 @@ prompt.get({
 );
 
 const start_tcp_worker = (server_port) => {
-    console.log('tcp worker');
+    console.log('TCP Worker started.');
     const autodetected_server_ip = speedtester_utils.get_ip_address();
     tcp_worker = new Worker('./tcp/tcp_server', {
         workerData: {
@@ -55,10 +55,15 @@ const start_tcp_worker = (server_port) => {
             console.log('UDP worker was not started.');
         }
     });
+
+    tcp_worker.on('exit', () => {
+        console.log('TCP worker close.');
+        on_worker_exit('TCP');
+    });
 }
 
 const start_udp_worker = (server_port) => {
-    console.log('udp worker');
+    console.log('UDP worker started.');
     const autodetected_server_ip = speedtester_utils.get_ip_address();
     udp_worker = new Worker('./udp/udp_server', {
         workerData: {
@@ -67,5 +72,20 @@ const start_udp_worker = (server_port) => {
         },
     });
     active_connections++;
+
+    udp_worker.on('exit', () => {
+        console.log('UDP worker close.');
+        on_worker_exit('UDP');
+    });
 }
 
+const on_worker_exit = (worker_type) => {
+    console.log();
+    active_connections--;
+    console.log(`server ${worker_type} finished`);
+
+    if (active_connections <= 0) {
+        console.log('All workers ended.');
+        process.exit();
+    }
+}

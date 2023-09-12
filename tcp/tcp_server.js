@@ -12,6 +12,7 @@ let received_bytes = 0;
 
 const server = net.createServer((socket) => {
     active_connections++;
+    console.log(`Create tcp server, connections: ${active_connections}`);
     if (active_connections > max_connections) {
         console.log(`Client ${socket.remoteAddress}:${socket.remotePort} tried to connect, but max. no. of connections are estabilished.`);
         socket.write('BUSY\n');
@@ -25,6 +26,7 @@ const server = net.createServer((socket) => {
 
         if (received_data.startsWith("SIZE:")) {
             all_time_start = Date.now();
+            received_bytes = 0;
             data_size = Number(received_data.substring(5));
         }
 
@@ -56,9 +58,9 @@ const server = net.createServer((socket) => {
     });
 
     socket.on('close', () => {
-        active_connections--;
+        // active_connections--;
         console.log(`TCP client ${socket.remoteAddress}:${socket.remotePort} disconnected.`);
-        console.log('TCP statistics:')
+        console.log('\nTCP statistics:')
         const all_time = all_time_stop - all_time_start;
         console.log(`TCP data: ${received_bytes} bytes`);
         console.log(`TCP time: ${all_time / 1000} seconds`);

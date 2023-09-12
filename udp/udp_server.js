@@ -21,9 +21,10 @@ server.on('message', (msg, rinfo) => {
     }
 
     const received_data = msg.toString();
-    
+
     if (received_data.startsWith("SIZE:")) {
         all_time_start = Date.now();
+        received_bytes = 0;
         data_size = Number(received_data.substring(5));
     }
 
@@ -35,7 +36,7 @@ server.on('message', (msg, rinfo) => {
     if (this_time == 0) {
         this_time = 1;
     }
-     
+
     let transfer = (msg.byteLength / this_time) * 1000 / 1024;
     console.log(`UDP worker received ${msg.byteLength} bytes in ${this_time} miliseconds with speed ${transfer.toFixed(2)} kB/s.`);
 
@@ -48,11 +49,11 @@ server.on('error', (e) => {
 });
 
 parentPort.on('message', () => {
-    console.log('UDP statistics:')
+    console.log('\nUDP statistics:')
     all_time_stop = Date.now();
     const all_time = all_time_stop - all_time_start
-    console.log(`UDP data: ${received_bytes}`);
-    console.log(`UDP time: ${all_time}`);
+    console.log(`UDP data: ${received_bytes} bytes`);
+    console.log(`UDP time: ${all_time / 1000} seconds`);
     const transfer = (received_bytes / all_time) * 1000 / 1024;
     console.log(`UDP transfer ${transfer.toFixed(2)} kB/s`);
 });
